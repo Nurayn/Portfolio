@@ -55,7 +55,7 @@ class ProjectController extends Controller
             'project_url' => $request->project_url,
             'skill_id' => $request->skill_id,
         ]);
-        return Inertia::render('Projects/Index');
+        return redirect()->route('projects.index')->with('toast', 'Project created successfully.');
     }
 
     /**
@@ -78,16 +78,45 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Project $project)
     {
         //
+        $request->validate([
+            'name' => 'required|min:3|max:255',
+            'skill_id' => 'required|integer|exists:skills,id',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $request->validate([
+                'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+            if (!Storage::disk('public')->exists('projects')) {
+                Storage::makeDirectory('projects');
+            }
+            if (Storage::disk('public')->exists($project->image)) {
+                Storage::disk('public')->delete($project->image);
+            }
+            $image = $request->file('image')->store('projects');
+        }
+        $project->update([
+            'name' => $request->name,
+            'image' => $image ?? $project->image,
+            'project_url' => $request->project_url,
+            'skill_id' => $request->skill_id,
+        ]);
+        return redirect()->route('projects.index')->with('toast', 'Project updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Project $project)
     {
         //
+        if (Storage::disk('public')->exists($project->image)) {
+            Storage::disk('public')->delete($project->image);
+        }
+        $project->delete();
+        return redirect()->route('projects.index')->with('toast', 'Project deleted successfully.');
     }
 }

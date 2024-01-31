@@ -28,7 +28,7 @@
                         </select>
                         <InputError
                             class="mt-2"
-                            :message="form.errors.skill_id"
+                            :message="$page.props.errors.skill_id"
                         />
                     </div>
                     <div class="mt-2">
@@ -44,7 +44,10 @@
                             autocomplete="name"
                         />
 
-                        <InputError class="mt-2" :message="form.errors.name" />
+                        <InputError
+                            class="mt-2"
+                            :message="$page.props.errors.name"
+                        />
                     </div>
                     <div class="mt-2">
                         <InputLabel for="project_url" value="URL" />
@@ -61,7 +64,7 @@
 
                         <InputError
                             class="mt-2"
-                            :message="form.errors.project_url"
+                            :message="$page.props.errors.project_url"
                         />
                     </div>
                     <div class="mt-2">
@@ -121,7 +124,9 @@ const submit = () => {
     router.post(route('projects.update', prop.project.id), {
         _method: 'put',
         name: form.name,
-        image: form.image
+        image: form.image,
+        skill_id: form.skill_id,
+        project_url: form.project_url
     })
 }
 </script>
